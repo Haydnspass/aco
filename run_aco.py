@@ -41,11 +41,11 @@ def simple_cube():
 
 if __name__ == "__main__":
 
-    G = read_graph_from_file(path='input.txt', delimiter=' ')
+    G = read_graph_from_file(path='data/fri26.txt', delimiter=' ')
     #G = simple_cube()
 
-    colony = Ant_Colony(G, 10, 1000, 1, 0.5, 0.02)
+    colony = Ant_Colony(G, 100, 10000, 0.2, 6, 0.4)
     shortest_path, shortest_dist = colony.find()
     print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
-    DrawGraph(G, 'r', 'pher')
-    plt.show()
+    # DrawGraph(G, 'r', 'pher')
+    # plt.show()
