@@ -16,8 +16,10 @@ class Ant_Colony:
     :param iter: Number of iterations.
     :param alpha: Power of the pheromone factor.
     :param beta: Power of the attractiveness factor.
+    :param rho: Determines the evaporation factor.
     :param unique_visit: Determines whether a node can only be visited once.
     :param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
+    :param end_node: specifies the end_node for path minimisation
     """
     class Ant(threading.Thread):
         """A class representing an ant as part of the ant colony.
@@ -28,23 +30,26 @@ class Ant_Colony:
         :param beta: Power of the attractiveness factor.
         :param unique_visit: Determines whether a node can only be visited once.
         :param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
+        :param end_node: specifies the end_node for path minimisation
         """
-        def __init__(self, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP'):
+        def __init__(self, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None):
             """ Lucas-Raphael Müller """
 
             self.graph = graph
             self.init_loc = init_loc
             self.alpha = alpha
             self.beta = beta
+            self.unique_visit = unique_visit
+            self.goal = goal
+            self.end_node = end_node
             
-            # self.loc = init_loc
             self.complete = False
             self.ended_before_goal = False
             self.path = []
             self.distance_traveled = 0.0
             self.poss_loc = list(self.graph.nodes())
             self.nodes = list(self.graph.nodes())
-            self.unique_visit = unique_visit
+            
             threading.Thread.__init__(self)
 
             self.travel(self.init_loc, init=True)    # recognise initial location as part of the path
@@ -53,7 +58,7 @@ class Ant_Colony:
         def run(self):
             """Actual run of the ants. This method overloads threading.Thread.run"""
             
-            while not self.is_goal_achieved():
+            while not self.is_goal_achieved(self.goal):
                 possible_nodes = self.get_possible_nodes()
                 if possible_nodes.__len__() < 1:
                     self.ended_before_goal = True
@@ -67,7 +72,10 @@ class Ant_Colony:
             """Returns nodes which are accessible (i.e. neighbors), 
                 and possible (i.e. may not be visited already). 
             """
-            return np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
+            nodes_all = np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
+            """Do not allow for self loops."""
+            nodes_not_self = np.setdiff1d(nodes_all, self.loc)
+            return nodes_not_self
         
         def return_best_node(self, current_node, possible_nodes, alpha, beta, heuristic=1):
             """Returns the best node out of the possible based on current pheromone level and distance to next node."""
@@ -87,10 +95,15 @@ class Ant_Colony:
             
             return np.random.choice(possible_nodes, p=p)
 
-        def is_goal_achieved(self, goal='TSP'):
+        def is_goal_achieved(self, goal):
             """Test whether goal is achieved."""
             if goal == 'TSP':
                 if np.array_equal(np.unique(self.path), self.nodes):
+                    return True
+                else:
+                    return False
+            elif goal == 'PathMin':
+                if self.loc == self.end_node:
                     return True
                 else:
                     return False
@@ -121,7 +134,7 @@ class Ant_Colony:
                 raise ValueError('Ant has not yet completed.')
             
     """See AntColony header."""
-    def __init__(self, graph, ants_total, iter, alpha, beta, rho):
+    def __init__(self, graph, ants_total, iter, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None):
         
         self.graph = graph
         self.ants_total = ants_total
@@ -129,19 +142,28 @@ class Ant_Colony:
         self.alpha = alpha
         self.beta = beta
         self.rho = rho
+        self.unique_visit = unique_visit
+        self.goal = goal
+        self.start_node = start_node
+        self.end_node = end_node
 
         self.shortest_dist = None
         self.shortest_path = None
         nx.set_edge_attributes(self.graph, 0, 'pher')   # initialize pheromone values
-
+        
         self.ants = self.init_ants()
         
     def init_ants(self, ants=None):
         """Initialize array of ants."""
               
-        ants = [None]*self.ants_total
+        ants = [None] * self.ants_total
         for i in range(self.ants_total):
-            ants[i] = self.Ant(self.graph, np.random.choice(self.graph.nodes()), self.alpha, self.beta, True, 'TSP')
+            """For TSP ants are placed randomly, for shortest path a starting node needs to be specified beforehand.
+            """
+            if self.start_node is None and self.goal == 'TSP':
+                self.start_node = np.random.choice(self.graph.nodes())
+                
+            ants[i] = self.Ant(self.graph, self.start_node, self.alpha, self.beta, self.unique_visit, self.goal, self.end_node)
             
         return ants
         
@@ -157,11 +179,12 @@ class Ant_Colony:
 
         for ant in self.ants:
             ant.join()
-        # for ant in self.ants:
-        #     ant.run()
         
         best_ant = None
         for ant in self.ants:
+            if ant.ended_before_goal: # ant got stuck but did meet goal
+                continue
+
             if not self.shortest_path:
                 self.shortest_path = ant.path
                 
