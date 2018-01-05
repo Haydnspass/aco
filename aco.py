@@ -33,7 +33,6 @@ class Ant_Colony:
         :param end_node: specifies the end_node for path minimisation
         """
         def __init__(self, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None):
-            """ Lucas-Raphael Müller """
 
             self.graph = graph
             self.init_loc = init_loc
@@ -45,6 +44,7 @@ class Ant_Colony:
             
             self.complete = False
             self.ended_before_goal = False
+            self.last_move = False
             self.path = []
             self.distance_traveled = 0.0
             self.poss_loc = list(self.graph.nodes())
@@ -69,13 +69,18 @@ class Ant_Colony:
             self.complete = True
 
         def get_possible_nodes(self):
-            """Returns nodes which are accessible (i.e. neighbors), 
-                and possible (i.e. may not be visited already). 
-            """
+            """Returns nodes which are accessible (i.e. neighbors), and possible (i.e. may not be visited already). """
             nodes_all = np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
+            
             """Do not allow for self loops."""
             nodes_not_self = np.setdiff1d(nodes_all, self.loc)
-            if (nodes_not_self.__len__() < 1) and (self.init_loc in list(self.graph.neighbors(self.loc))):
+            
+            """Allow to move to initial node for TSP even though initial node was already visited."""
+            if self.path.__len__() == self.nodes.__len__() \
+                    and self.init_loc in list(self.graph.neighbors(self.loc)) \
+                    and self.unique_visit \
+                    and self.goal == 'TSP':
+                self.last_move = True
                 return [self.init_loc]
                 
             return nodes_not_self
@@ -117,7 +122,7 @@ class Ant_Colony:
             """Updates path and distance."""
             
             self.path.append(next)
-            if self.unique_visit and next != self.init_loc:
+            if self.unique_visit and not self.last_move:    # last move to close the line; already removed.
                 self.poss_loc.remove(next)
             
             if init is False:
