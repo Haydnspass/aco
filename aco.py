@@ -75,6 +75,9 @@ class Ant_Colony:
             nodes_all = np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
             """Do not allow for self loops."""
             nodes_not_self = np.setdiff1d(nodes_all, self.loc)
+            if (nodes_not_self.__len__() < 1) and (self.init_loc in list(self.graph.neighbors(self.loc))):
+                return [self.init_loc]
+                
             return nodes_not_self
         
         def return_best_node(self, current_node, possible_nodes, alpha, beta, heuristic=1):
@@ -98,7 +101,7 @@ class Ant_Colony:
         def is_goal_achieved(self, goal):
             """Test whether goal is achieved."""
             if goal == 'TSP':
-                if np.array_equal(np.unique(self.path), self.nodes):
+                if np.array_equal(np.unique(self.path), self.nodes) and self.loc == self.init_loc:
                     return True
                 else:
                     return False
@@ -114,7 +117,7 @@ class Ant_Colony:
             """Updates path and distance."""
             
             self.path.append(next)
-            if self.unique_visit:
+            if self.unique_visit and next != self.init_loc:
                 self.poss_loc.remove(next)
             
             if init is False:
