@@ -187,31 +187,32 @@ class Ant_Colony:
         The method run() in <ants> representing the thread’s activity will be called. 
         Multiple threads are runing at the same time.
         """
-        self.ants = self.init_ants()
-        
-        for ant in self.ants:
-            ant.start()
-
-        for ant in self.ants:
-            ant.join()
-        
-        best_ant = None
-        for ant in self.ants:
-            if ant.ended_before_goal: # ant got stuck but did meet goal
-                continue
-
-            if not self.shortest_path:
-                self.shortest_path = ant.path
-                
-            if not self.shortest_dist:
-                self.shortest_dist = ant.distance_traveled
-                
-            if ant.distance_traveled < self.shortest_dist:
-                self.shortest_path = ant.path
-                self.shortest_dist = ant.distance_traveled
-                best_ant = ant
+        for _ in range(self.iter):
+            self.ants = self.init_ants()
             
-        self.update_pheromon(self.rho)
+            for ant in self.ants:
+                ant.start()
+
+            for ant in self.ants:
+                ant.join()
+            
+            best_ant = None
+            for ant in self.ants:
+                if ant.ended_before_goal: # ant got stuck but did meet goal
+                    continue
+
+                if not self.shortest_path:
+                    self.shortest_path = ant.path
+                    
+                if not self.shortest_dist:
+                    self.shortest_dist = ant.distance_traveled
+                    
+                if ant.distance_traveled < self.shortest_dist:
+                    self.shortest_path = ant.path
+                    self.shortest_dist = ant.distance_traveled
+                    best_ant = ant
+                
+            self.update_pheromon(self.rho)
         
         return self.shortest_path, self.shortest_dist 
         
