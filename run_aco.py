@@ -59,12 +59,12 @@ def romanian_graph(): # this graph is not possible with unique visitable nodes
 
 if __name__ == "__main__":
 
-    #G = romanian_graph()
-    G = read_graph_from_file(path='data/fri26.txt', delimiter=' ')
+    # G = romanian_graph()
+    G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
     # G = simple_cube()
 
-    colony = Ant_Colony(G, 10, 1000, 1, 5, 0.4, True, 'TSP')
-    #colony = Ant_Colony(G, 20, 1000, 1, 1, 0.1, True, 'PathMin', 4, 10)
+    colony = Ant_Colony(G, 30, 100, 1, 0.2, 0.4, True, 'TSP')
+    # colony = Ant_Colony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     shortest_path, shortest_dist = colony.find()
     print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
     # DrawGraph(G, 'r', 'pher')
