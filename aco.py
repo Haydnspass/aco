@@ -69,17 +69,24 @@ class Ant_Colony:
             self.complete = True
 
         def get_possible_nodes(self):
+            """Prevent to get another node after path is closed."""
+            if self.path.__len__() > 1 and self.path[0] == self.path[-1]:
+                raise ValueError('Path is already closed. This should not happen.')
+                
             """Returns nodes which are accessible (i.e. neighbors), and possible (i.e. may not be visited already). """
             nodes_all = np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
             
             """Do not allow for self loops."""
             nodes_not_self = np.setdiff1d(nodes_all, self.loc)
             
-            """Allow to move to initial node for TSP even though initial node was already visited."""
+            """Allow to move to initial node for TSP even though initial node was already visited, 
+            this must not occur more than once.
+            """
             if self.path.__len__() == self.nodes.__len__() \
                     and self.init_loc in list(self.graph.neighbors(self.loc)) \
                     and self.unique_visit \
                     and self.goal == 'TSP':
+                self.poss_loc = [] # safety measure
                 self.last_move = True
                 return [self.init_loc]
                 
