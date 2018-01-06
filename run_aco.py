@@ -40,9 +40,9 @@ if __name__ == "__main__":
 
     # G = romanian_graph()
     G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
-    # G = simple_cube()
+    #G = simple_cube()
 
-    colony = Ant_Colony(G, 30, 100, 5, 1, 0.1, True, 'TSP')
+    colony = Ant_Colony(G, 30, 100, 5, 1, 0.2, True, 'TSP', algo='ACS')
     # colony = Ant_Colony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     shortest_path, shortest_dist = colony.find()
     print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
