@@ -2,14 +2,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-from aco import Ant_Colony
+from antcolony import AntColony
 from graphManipulation import read_graph_from_file,DrawGraph
-
-"""takes input from the file and creates a weighted undirected graph.
-Inspired by
-https://github.com/MUSoC/Visualization-of-popular-algorithms-in-Python/blob/master/
-Travelling%20Salesman%20Problem/tsp_christofides.py
-"""
 
 
 def simple_cube():
@@ -39,11 +33,12 @@ def romanian_graph(): # this graph is not possible with unique visitable nodes
 if __name__ == "__main__":
 
     # G = romanian_graph()
-    G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
-    #G = simple_cube()
+    # G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
+    G = simple_cube()
 
-    colony = Ant_Colony(G, 30, 100, 5, 1, 0.2, True, 'TSP', algo='ACS')
-    # colony = Ant_Colony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
+    colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', algo='ACS')
+    # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
+    # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     shortest_path, shortest_dist = colony.find()
     print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
     # DrawGraph(G, 'r', 'pher')
