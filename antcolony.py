@@ -91,18 +91,18 @@ class AntColony:
                 ant.join()
             
             for ant in self.ants:
-                if ant.ended_before_goal: # ant got stuck but did meet goal
+                if ant.ended_before_goal: # ant got stuck
                     continue
 
-            if not self.best_ant:
-                self.shortest_dist = ant.distance_traveled
-                self.shortest_path = ant.path
-                self.best_ant = ant
+                if not self.best_ant:
+                    self.shortest_dist = ant.distance_traveled
+                    self.shortest_path = ant.path
+                    self.best_ant = ant
 
-            if ant.distance_traveled < self.shortest_dist:
-                self.shortest_path = ant.path
-                self.shortest_dist = ant.distance_traveled
-                self.best_ant = ant
+                if ant.distance_traveled < self.shortest_dist:
+                    self.shortest_path = ant.path
+                    self.shortest_dist = ant.distance_traveled
+                    self.best_ant = ant
 
             print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
