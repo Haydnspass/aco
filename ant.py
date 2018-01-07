@@ -1,3 +1,4 @@
+import copy
 import networkx as nx
 import numpy as np
 import threading
@@ -20,8 +21,9 @@ class Ant(threading.Thread):
     :param end_node: specifies the end_node for path minimisation
     """
 
-    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None):
-
+    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None, num_of_iter=1):
+        
+        self.colony = colony
         self.graph = graph
         self.init_loc = init_loc
         self.alpha = alpha
@@ -29,8 +31,10 @@ class Ant(threading.Thread):
         self.unique_visit = unique_visit
         self.goal = goal
         self.end_node = end_node
-        self.colony = colony
+        self.num_of_iter = num_of_iter
 
+
+        self.iter = 1
         self.loc = None
         self.complete = False
         self.ended_before_goal = False
@@ -43,19 +47,39 @@ class Ant(threading.Thread):
         threading.Thread.__init__(self)
 
         self.travel(self.init_loc, init=True)  # recognise initial location as part of the path
+    
+    def reset(self, init_loc):
+        """Reset an ant"""
+        
+        self.iter += 1
+        self.init_loc = init_loc
+        
+        self.loc = None
+        self.complete = False
+        self.ended_before_goal = False
+        self.last_move = False
+        self.path = []
+        self.distance_traveled = 0.0
+        self.poss_loc = list(self.graph.nodes())
+
+        self.travel(self.init_loc, init=True)  # recognise initial location as part of the path
 
     def run(self):
         """Actual run of the ants. This method overloads threading.Thread.run"""
 
-        while not self.is_goal_achieved(self.goal):
-            possible_nodes = self.get_possible_nodes()
-            if possible_nodes.__len__() < 1:
-                self.ended_before_goal = True
-                break
-            next = self.return_best_node(self.loc, possible_nodes, self.alpha, self.beta)
-            self.travel(next, init=False)
-
-        self.complete = True
+        for _ in range(self.colony.iter_total):
+            while not self.is_goal_achieved(self.goal):
+                possible_nodes = self.get_possible_nodes()
+                if possible_nodes.__len__() < 1:
+                    self.ended_before_goal = True
+                    break
+                next = self.return_best_node(self.loc, possible_nodes, self.alpha, self.beta)
+                self.travel(next, init=False)
+            
+            self.complete = True
+            _ = self.am_i_best_ant(self.colony)
+            self.reset(init_loc=np.random.choice(self.nodes))
+        
 
     def get_possible_nodes(self):
         """Prevent to get another node after path is closed."""
@@ -119,6 +143,30 @@ class Ant(threading.Thread):
                 return False
         else:
             raise ValueError('Only TSP possible so far.')
+            
+    def am_i_best_ant(self, colony):
+        if self.ended_before_goal:
+            return False
+            
+        if not colony.best_ant:
+            colony.shortest_dist = self.distance_traveled
+            colony.shortest_path = self.path
+            colony.best_ant = self
+            
+        if self.distance_traveled < colony.shortest_dist:
+            colony.shortest_dist = self.distance_traveled
+            colony.shortest_path = self.path
+            colony.best_ant = self
+            
+            print('New best ant with dist: {}'.format(colony.shortest_dist))
+            
+        if np.random.choice([True, False], p=[(1/colony.ants_total), (1-1/colony.ants_total)]) and colony.algo == 'ACS':
+            #no initial pheromone values needed here (?)
+            best_track = colony.best_ant.return_new_pher_trace()
+            for edge in best_track.edges():
+                self.graph[edge[0]][edge[1]]['pher'] += 1 / colony.shortest_dist
+            
+        return True
 
     def travel(self, next, init=False):
         """Updates path and distance."""

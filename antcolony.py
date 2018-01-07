@@ -9,6 +9,37 @@ from ant import Ant
     Jackie ?, Lucas Möller, Lucas-Raphael Müller 
 """
 
+import threading
+import numpy as np
+import time
+
+"""
+This is still dirty draft of an idea, in which evaporation takes place not based on iterations but 
+Lucas-Raphael Müller"""
+
+
+class Evaporation(threading.Thread):
+    """A god which lets the world evaporate. 
+    It lives until it is ment to stop (i.e. instance.join()).
+    """
+    def __init__(self, graph, rho):
+        super(Evaporation, self).__init__()
+        self.stoprequest = threading.Event()
+        self.graph = graph
+        self.rho = rho
+
+    def run(self):
+        # As long as we weren't asked to stop, let evaporation happen
+        while not self.stoprequest.isSet():
+            for edge in self.graph.edges():
+                self.graph[edge[0]][edge[1]]['pher'] *= (1 - self.rho)
+            # print('Evaporation took place.')
+            time.sleep(0.05)
+
+    def join(self, timeout=None):
+        self.stoprequest.set()
+        super(Evaporation, self).join(timeout)
+
 class AntColony:
     """A class representing an ant colony.
 
@@ -30,12 +61,12 @@ class AntColony:
     :param algo: Speciefies ant algorithm (ant_system, elitist, min_max, ACS).
     """
 
-    def __init__(self, graph, ants_total, iter, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None, \
-                 init_pher=0.1, min_pher=None, max_pher=None, q0=0.3, tau=0.00001, algo='ant_system'):
+    def __init__(self, graph, ants_total, iter_total, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None, \
+                 init_pher=0.1, min_pher=None, max_pher=None, q0=0.4, tau=0.00001, algo='ant_system'):
 
         self.graph = graph
         self.ants_total = ants_total
-        self.iter = iter
+        self.iter_total = iter_total
         self.alpha = alpha
         self.beta = beta
         self.rho = rho
@@ -68,7 +99,7 @@ class AntColony:
                 self.start_node = np.random.choice(self.graph.nodes())
                 
             ants[i] = Ant(colony=self, graph=self.graph, init_loc=self.start_node, alpha=self.alpha, beta=self.beta, \
-                          unique_visit=self.unique_visit, goal=self.goal, end_node=self.end_node)
+                          unique_visit=self.unique_visit, goal=self.goal, end_node=self.end_node, num_of_iter=self.iter_total)
             
         return ants
 
@@ -81,32 +112,50 @@ class AntColony:
         The method run() in <ants> representing the thread’s activity will be called. 
         Multiple threads are runing at the same time.
         """
-        for i in range(self.iter):
-            self.ants = self.init_ants()
+        
+        self.ants = self.init_ants()
+        
+        for ant in self.ants:
+            ant.start()
             
-            for ant in self.ants:
-                ant.start()
-
-            for ant in self.ants:
-                ant.join()
+        eva = Evaporation(self.graph, rho=self.rho)
+        eva.start()
             
-            for ant in self.ants:
-                if ant.ended_before_goal: # ant got stuck
-                    continue
-
-                if not self.best_ant:
-                    self.shortest_dist = ant.distance_traveled
-                    self.shortest_path = ant.path
-                    self.best_ant = ant
-
-                if ant.distance_traveled < self.shortest_dist:
-                    self.shortest_path = ant.path
-                    self.shortest_dist = ant.distance_traveled
-                    self.best_ant = ant
-
-            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
-
-            self.update_pheromon()
+        for ant in self.ants:
+            ant.join()
+        
+        eva.join()
+        
+        # for i in range(self.iter):
+        #     self.ants = self.init_ants()
+        # 
+        #     for ant in self.ants:
+        #         ant.start()
+        #     eva = Evaporation(self.graph, rho=self.rho)
+        #     eva.start()
+        # 
+        #     for ant in self.ants:
+        #         ant.join()
+        # 
+        #     eva.join()
+        # 
+        #     for ant in self.ants:
+        #         if ant.ended_before_goal: # ant got stuck
+        #             continue
+        # 
+        #         if not self.best_ant:
+        #             self.shortest_dist = ant.distance_traveled
+        #             self.shortest_path = ant.path
+        #             self.best_ant = ant
+        # 
+        #         if ant.distance_traveled < self.shortest_dist:
+        #             self.shortest_path = ant.path
+        #             self.shortest_dist = ant.distance_traveled
+        #             self.best_ant = ant
+        # 
+        #     print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+        # 
+        #     self.update_pheromon()
         
         return self.shortest_path, self.shortest_dist 
         
@@ -115,8 +164,8 @@ class AntColony:
         Several algorithms, such as ant system, elitist ant etc. are possible.
         The all comprise two steps: 1) Evaporation, 2) New pheromone based on the paths.
         """
-        for edge in self.graph.edges():
-            self.graph[edge[0]][edge[1]]['pher'] *= (1 - self.rho)
+        # for edge in self.graph.edges():
+        #     self.graph[edge[0]][edge[1]]['pher'] *= (1 - self.rho)
             
         if self.algo == 'ant_system':
             for ant in self.ants:

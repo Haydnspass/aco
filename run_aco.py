@@ -33,10 +33,10 @@ def romanian_graph(): # this graph is not possible with unique visitable nodes
 if __name__ == "__main__":
 
     # G = romanian_graph()
-    # G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
-    G = simple_cube()
+    G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
+    # G = simple_cube()
 
-    colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', algo='ACS')
+    colony = AntColony(G, 30, 100, 1, 1, 0.02, True, 'TSP', algo='ACS')
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     shortest_path, shortest_dist = colony.find()
