@@ -104,7 +104,7 @@ class AntColony:
                 self.shortest_dist = ant.distance_traveled
                 self.best_ant = ant
 
-            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromon()
         
