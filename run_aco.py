@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import evaluation
 
 from antcolony import AntColony
 from graphManipulation import read_graph_from_file,DrawGraph
@@ -33,13 +34,15 @@ def romanian_graph(): # this graph is not possible with unique visitable nodes
 if __name__ == "__main__":
 
     # G = romanian_graph()
-    # G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
-    G = simple_cube()
+    G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
+    #G = simple_cube()
 
-    colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', algo='ACS')
+    colony = AntColony(graph=G, ants_total=30, iter=20, alpha=1, beta=5, rho=0.04, unique_visit=True, \
+                       goal='TSP', algo='ACS')
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
-    shortest_path, shortest_dist = colony.find()
-    print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
+    shortest_path, shortest_dist, paths, distances = colony.find
+    evaluation.plot_distances(distances, title='Test', path='plots/test.pdf')
+    # print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
     # DrawGraph(G, 'r', 'pher')
     # plt.show()

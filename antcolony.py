@@ -76,11 +76,15 @@ class AntColony:
         for edge in self.graph.edges():
             self.graph[edge[0]][edge[1]]['pher'] = self.init_pher
 
+    @property
     def find(self):
         """Start the thread’s activity. 
         The method run() in <ants> representing the thread’s activity will be called. 
         Multiple threads are runing at the same time.
         """
+        paths = []
+        distances = []
+
         for i in range(self.iter):
             self.ants = self.init_ants()
             
@@ -104,12 +108,16 @@ class AntColony:
                 self.shortest_dist = ant.distance_traveled
                 self.best_ant = ant
 
-            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            paths.append(self.shortest_path)
+            distances.append(self.shortest_dist)
+
+
+            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromon()
         
-        return self.shortest_path, self.shortest_dist 
-        
+        return self.shortest_path, self.shortest_dist, paths, distances
+
     def update_pheromon(self):
         """Updates the pheromon graph, based on the ants movements.
         Several algorithms, such as ant system, elitist ant etc. are possible.
@@ -133,7 +141,7 @@ class AntColony:
             for edge in delta.edges():
                 self.graph[edge[0]][edge[1]]['pher'] += delta[edge[0]][edge[1]]['delta']
                 pheromones.append(delta[edge[0]][edge[1]]['delta'])
-            print('mean pheromone:', np.mean(np.array(pheromones)))
+            #print('mean pheromone:', np.mean(np.array(pheromones)))
             
         if self.algo == 'min_max':
             if not self.init_pher:

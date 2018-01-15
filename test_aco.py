@@ -47,7 +47,7 @@ def all_test_tsp_run():
             else:
                 colony = AntColony(graph, 50, 1, 1, 0.5, 0.2, True, 'TSP', algo=alg)
                 
-            paths[i], dists[i] = colony.find()
+            paths[i], dists[i] = colony.find
             i += 1
         
     return paths, dists
@@ -66,7 +66,7 @@ def uniqueness_of_path(path):
 def test_total_run_basic(simple_cube):
     """Start at 1 to make life easier"""
     colony = AntColony(simple_cube, 4, 5, 1, 1, 1, True, 'TSP', start_node=1, algo='ant_system')
-    path_best, dist = colony.find()
+    path_best, dist = colony.find
 
     path_best = np.array(path_best)
     assert ((path_best == [1,2,3,4,1]).all() or (path_best == [1,4,3,2,1]).all()) and dist == 4,\
