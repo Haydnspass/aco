@@ -3,6 +3,7 @@ from copy import deepcopy
 from antcolony import AntColony
 from run_aco import simple_cube, read_graph_from_file
 from heapq import *
+import evaluation
 
 class Evolution():
     ''' class to let several ant colonies compete agains each other to determine good parameters for the evaluated
@@ -69,7 +70,7 @@ class Evolution():
                 id (current count)
         '''
 
-        #vaiation
+        #variation
         genes = deepcopy(parent_genes)
         for key in parent_genes.keys():
             if parent_genes[key] != None:
@@ -99,7 +100,7 @@ class Evolution():
 
         solutions = []
         for i in range(self.tries):
-            _, dist = colony.find
+            _, dist, _, _ = colony.find
             solutions.append(dist)
 
         return np.mean(np.array(solutions))
@@ -109,7 +110,12 @@ class Evolution():
 
         Returns:
             alpha_colony (AntColony instance): colony that perfomed best overall
-            alpha_genes (dict): parameters of this colony'''
+            alpha_genes (dict): parameters of this colony
+            shortest_distances (list): shortest distance found in each iteration
+            mean_distances (list): mean shortest distance found by all colonies in each iteration'''
+
+        mean_distances = []
+        shortest_distances = []
 
         for i in range(self.epochs):
 
@@ -143,25 +149,37 @@ class Evolution():
             self.population = parents + children
             heapify(self.population)
 
+            #epochs shortest distance
+            epoch_winner = self.population[0]
+            shortest_distances.append(epoch_winner[0])
+
+            #epochs mean distance and std
+            all_distances = np.array([self.population[i][0] for i in range(self.num_colonies)])
+            mean = np.mean(all_distances)
+            std = np.std(all_distances)
+            mean_distances.append([mean, std])
+
             print([(self.population[i][0], self.population[i][1]) for i in range(len(self.population))])
 
+        #leaves the heap invariant
         alpha_distance, alpha_id, alpha_colony, alpha_genes = heappop(self.population)
 
-        return alpha_colony, alpha_genes
+        return alpha_colony, alpha_genes, shortest_distances, mean_distances
 
 
 if __name__ == '__main__':
 
-    gene_root = {'alpha': 1, 'beta': 1, 'rho': 0.1, 'init_pher': 0.001, 'min_pher': None, 'max_pher': None, 'q0': None, 'tau': None}
+    gene_root = {'alpha': 1, 'beta': 1, 'rho': 0.1, 'init_pher': None, 'min_pher': None, 'max_pher': None, 'q0': None, 'tau': None}
 
     #G = simple_cube()
     G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
 
-    evolution = Evolution(colonies=10, ants=20, algo='elitist', iter=50, init_params=gene_root, graph=G, unique_visit=True, \
-                    goal='TSP', start_node=None, end_node=None, tries=3, epochs=100, variation=0.5, drop_out=0.5)
+    evolution = Evolution(colonies=5, ants=5, algo='ant_system', iter=8, init_params=gene_root, graph=G, unique_visit=True, \
+                    goal='TSP', start_node=None, end_node=None, tries=1, epochs=3, variation=0.5, drop_out=0.5)
 
-    alpha_colony, alpha_genes = evolution.begin()
+    alpha_colony, alpha_genes, shortest_distances, mean_distances = evolution.begin()
+    evaluation.plot_evolution_hist(shortest_distances, mean_distances, path='plots/evo_test.pdf', title='Evo Test')
 
-    print('\nwinner:')
-    print(alpha_colony.shortest_dist)
-    print(alpha_genes)
+    #print('\nwinner:')
+    #print(alpha_colony.shortest_dist)
+    #print(alpha_genes)

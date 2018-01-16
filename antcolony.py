@@ -112,7 +112,7 @@ class AntColony:
             distances.append(self.shortest_dist)
 
 
-            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromon()
         
