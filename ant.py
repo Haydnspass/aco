@@ -13,18 +13,18 @@ class Ant(threading.Thread):
     """
     
     def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None):
-    """
-        Initializes an ant.
-        
-        @param colony: Instance of ant colony class.
-        @param graph: A graph representation of the ant's world.
-        @param init_loc: Initial location of the ant (usually placed randomly).
-        @param alpha: Power of the pheromone factor.
-        @param beta: Power of the attractiveness factor.
-        @param unique_visit: Determines whether a node can only be visited once.
-        @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
-        @param end_node: specifies the end_node for path minimisation
-    """
+        """
+            Initializes an ant.
+
+            @param colony: Instance of ant colony class.
+            @param graph: A graph representation of the ant's world.
+            @param init_loc: Initial location of the ant (usually placed randomly).
+            @param alpha: Power of the pheromone factor.
+            @param beta: Power of the attractiveness factor.
+            @param unique_visit: Determines whether a node can only be visited once.
+            @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
+            @param end_node: specifies the end_node for path minimisation
+        """
         self.graph = graph
         self.init_loc = init_loc
         self.alpha = alpha
