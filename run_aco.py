@@ -38,17 +38,20 @@ if __name__ == "__main__":
     #G = simple_cube()
 
     colony = AntColony(graph=G, 
-        ants_total=48, 
-        iter=100, 
+        ants_total=10,
+        iter=2500,
         alpha=1, 
-        beta=5, 
-        rho=0.4,
+        beta=2,
+        rho=0.1,
+        init_pher=(1/(48 * 12000)),
+        q0=0.9,
         unique_visit=True, 
         goal='TSP', 
-        algo='ant_system')
+        algo='ACS')
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
-    memory_filename = 'data/mem_' + 'algo-' + colony.algo + '_iter-' + str(colony.iter) + '_ants-' + str(colony.ants_total) + '.npy'
+    add_info = 'paper_params'
+    memory_filename = 'data/mem_' + add_info + '_algo-' + colony.algo + '_iter-' + str(colony.iter) + '_ants-' + str(colony.ants_total) + '.npy'
     shortest_path, shortest_dist, memory = colony.find(path=memory_filename)
     evaluation.plot_distances(memory, title='Test', path='plots/test.pdf', show=False)
     # print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)

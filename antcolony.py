@@ -139,7 +139,10 @@ class AntColony:
             if path:
                 np.save(path, memory)
 
-            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            if i % 100 == 0:
+                print('This is: Algorithm: ', self.algo, ' --- #Ants: ', self.ants_total, ' --- #Iterations: ', self.iter)
+                print('alpha: ', self.alpha, 'beta: ', self.beta, 'rho: ', self.rho, 'q0: ', self.q0, 'init: ', self.init_pher)
+                print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromone()
         
