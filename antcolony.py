@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import threading
+import os
 
 from ant import Ant
 
@@ -16,12 +17,12 @@ class AntColony:
 
     def __init__(self, graph, ants_total, iter, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None, \
                  init_pher=0.1, min_pher=None, max_pher=None, q0=0.3, tau=0.00001, algo='ant_system'):
-        
+
         """
             Initialize an ant colony.
 
             @param graph: A graph representation of the world.
-            @param ants_total: Total numbe of ants.
+            @param ants_total: Total number of ants.
             @param iter: Number of iterations.
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
@@ -65,11 +66,11 @@ class AntColony:
     def init_ants(self, ants=None):
         """
             Initialize array of ants.
-            
+
             @called in: __init__(), find()
-            
+
             @param ants:
-          
+
             @return ants: The arary of ants.
         """
               
@@ -86,24 +87,29 @@ class AntColony:
             
         return ants
 
-    def init_pheromon(self):
+    def init_pheromone(self):
         """
             Initializes pheromone amounts for each edge of the graph.
-            
+
             @called in: update_pheromone()
         """
         for edge in self.graph.edges():
             self.graph[edge[0]][edge[1]]['pher'] = self.init_pher
 
-    def find(self):
-        """
-            Start the thread’s activity. 
-            The method run() in <ants> representing the thread’s activity will be called. 
-            Multiple threads are runing at the same time.
-            
+    def find(self, path=None):
+        """Start the thread’s activity. 
+        The method run() in <ants> representing the thread’s activity will be called. 
+        Multiple threads are runing at the same time.
+
             @return self.shortest_path: The shortest path found.
             @return self.shortest_dist: The corresponding distance.
         """
+
+        if path and os.path.exists(path):
+            raise IOError('path already exists. please choose another to save history.')
+
+        memory = np.full((self.iter, 2), None)
+
         for i in range(self.iter):
             self.ants = self.init_ants()
             
@@ -127,15 +133,21 @@ class AntColony:
                     self.shortest_dist = ant.distance_traveled
                     self.best_ant = ant
 
-            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            #saving history
+            memory[i, 0] = self.shortest_dist
+            memory[i, 1] = self.shortest_path
+            if path:
+                np.save(path, memory)
 
-            self.update_pheromon()
+            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+
+            self.update_pheromone()
         
-        return self.shortest_path, self.shortest_dist 
-        
-    def update_pheromon(self):
+        return self.shortest_path, self.shortest_dist, memory
+
+    def update_pheromone(self):
         """
-            Updates the pheromon graph, based on the ants movements.
+            Updates the pheromone graph, based on the ants movements.
             Several algorithms, such as ant system, elitist ant etc. are possible.
             The all comprise two steps: 1) Evaporation, 2) New pheromone based on the paths.
         """
@@ -151,20 +163,20 @@ class AntColony:
         if self.algo == 'elitist':
             if not self.init_pher:
                 raise ValueError('must provide initial pheromone value')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
                 self.graph[edge[0]][edge[1]]['pher'] += delta[edge[0]][edge[1]]['delta']
                 pheromones.append(delta[edge[0]][edge[1]]['delta'])
-            print('mean pheromone:', np.mean(np.array(pheromones)))
+            #print('mean pheromone:', np.mean(np.array(pheromones)))
             
         if self.algo == 'min_max':
             if not self.init_pher:
                 raise ValueError('must provide initial pheromone value')
             if not self.min_pher or not self.max_pher:
                 raise ValueError('must provide min and max values for pheromone')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
