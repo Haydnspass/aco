@@ -21,7 +21,7 @@ class AntColony:
             Initialize an ant colony.
 
             @param graph: A graph representation of the world.
-            @param ants_total: Total numbe of ants.
+            @param ants_total: Total number of ants.
             @param iter: Number of iterations.
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
