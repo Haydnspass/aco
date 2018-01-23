@@ -86,7 +86,7 @@ class AntColony:
             
         return ants
 
-    def init_pheromon(self):
+    def init_pheromone(self):
         """
             Initializes pheromone amounts for each edge of the graph.
             
@@ -151,7 +151,7 @@ class AntColony:
         if self.algo == 'elitist':
             if not self.init_pher:
                 raise ValueError('must provide initial pheromone value')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
@@ -164,7 +164,7 @@ class AntColony:
                 raise ValueError('must provide initial pheromone value')
             if not self.min_pher or not self.max_pher:
                 raise ValueError('must provide min and max values for pheromone')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
