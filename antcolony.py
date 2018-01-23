@@ -7,32 +7,37 @@ from ant import Ant
 
 
 """ 
-    Jackie ?, Lucas Möller, Lucas-Raphael Müller 
+    Jacqueline Wagner, Lucas Möller, Lucas-Raphael Müller 
 """
 
 class AntColony:
-    """A class representing an ant colony.
-
-    :param graph: A graph representation of the world.
-    :param ants_total: Total numbe of ants.
-    :param iter: Number of iterations.
-    :param alpha: Power of the pheromone factor.
-    :param beta: Power of the attractiveness factor.
-    :param rho: Determines the evaporation factor.
-    :param unique_visit: Determines whether a node can only be visited once.
-    :param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
-    :param start_node: Specifies the initial node.
-    :param end_node: Specifies the end_node for path minimisation
-    :param init_pher: Initial pheromone value.
-    :param min_pher: Minimal pheromon value for max-min ant optimisation.
-    :param max_pher: Maximal pheromon value for max-min ant optimisation.
-    :param q0: specifies ratio between exploitation and exploration.
-    :param tau: initial pheromon value for ACS.
-    :param algo: Speciefies ant algorithm (ant_system, elitist, min_max, ACS).
+    """
+        A class representing an ant colony.
     """
 
     def __init__(self, graph, ants_total, iter, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None, \
                  init_pher=0.1, min_pher=None, max_pher=None, q0=0.3, tau=0.00001, algo='ant_system'):
+
+        """
+            Initialize an ant colony.
+
+            @param graph: A graph representation of the world.
+            @param ants_total: Total number of ants.
+            @param iter: Number of iterations.
+            @param alpha: Power of the pheromone factor.
+            @param beta: Power of the attractiveness factor.
+            @param rho: Determines the evaporation factor.
+            @param unique_visit: Determines whether a node can only be visited once.
+            @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
+            @param start_node: Specifies the initial node.
+            @param end_node: Specifies the end_node for path minimisation
+            @param init_pher: Initial pheromone value.
+            @param min_pher: Minimal pheromon value for max-min ant optimisation.
+            @param max_pher: Maximal pheromon value for max-min ant optimisation.
+            @param q0: specifies ratio between exploitation and exploration.
+            @param tau: initial pheromon value for ACS.
+            @param algo: Speciefies ant algorithm (ant_system, elitist, min_max, ACS).
+        """
 
         self.graph = graph
         self.ants_total = ants_total
@@ -59,11 +64,20 @@ class AntColony:
         self.ants = self.init_ants()
 
     def init_ants(self, ants=None):
-        """Initialize array of ants."""
+        """
+            Initialize array of ants.
+
+            @called in: __init__(), find()
+
+            @param ants:
+
+            @return ants: The arary of ants.
+        """
               
         ants = [None] * self.ants_total
         for i in range(self.ants_total):
-            """For TSP ants are placed randomly, for shortest path a starting node needs to be specified beforehand.
+            """
+                For TSP ants are placed randomly, for shortest path a starting node needs to be specified beforehand.
             """
             if self.start_node is None and self.goal == 'TSP':
                 self.start_node = np.random.choice(self.graph.nodes())
@@ -73,7 +87,12 @@ class AntColony:
             
         return ants
 
-    def init_pheromon(self):
+    def init_pheromone(self):
+        """
+            Initializes pheromone amounts for each edge of the graph.
+
+            @called in: update_pheromone()
+        """
         for edge in self.graph.edges():
             self.graph[edge[0]][edge[1]]['pher'] = self.init_pher
 
@@ -81,6 +100,9 @@ class AntColony:
         """Start the thread’s activity. 
         The method run() in <ants> representing the thread’s activity will be called. 
         Multiple threads are runing at the same time.
+
+            @return self.shortest_path: The shortest path found.
+            @return self.shortest_dist: The corresponding distance.
         """
 
         if path and os.path.exists(path):
@@ -98,18 +120,18 @@ class AntColony:
                 ant.join()
             
             for ant in self.ants:
-                if ant.ended_before_goal: # ant got stuck but did meet goal
+                if ant.ended_before_goal: # ant got stuck
                     continue
 
-            if not self.best_ant:
-                self.shortest_dist = ant.distance_traveled
-                self.shortest_path = ant.path
-                self.best_ant = ant
+                if not self.best_ant:
+                    self.shortest_dist = ant.distance_traveled
+                    self.shortest_path = ant.path
+                    self.best_ant = ant
 
-            if ant.distance_traveled < self.shortest_dist:
-                self.shortest_path = ant.path
-                self.shortest_dist = ant.distance_traveled
-                self.best_ant = ant
+                if ant.distance_traveled < self.shortest_dist:
+                    self.shortest_path = ant.path
+                    self.shortest_dist = ant.distance_traveled
+                    self.best_ant = ant
 
             #saving history
             memory[i, 0] = self.shortest_dist
@@ -119,14 +141,15 @@ class AntColony:
 
             #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
-            self.update_pheromon()
+            self.update_pheromone()
         
         return self.shortest_path, self.shortest_dist, memory
 
-    def update_pheromon(self):
-        """Updates the pheromon graph, based on the ants movements.
-        Several algorithms, such as ant system, elitist ant etc. are possible.
-        The all comprise two steps: 1) Evaporation, 2) New pheromone based on the paths.
+    def update_pheromone(self):
+        """
+            Updates the pheromone graph, based on the ants movements.
+            Several algorithms, such as ant system, elitist ant etc. are possible.
+            The all comprise two steps: 1) Evaporation, 2) New pheromone based on the paths.
         """
         for edge in self.graph.edges():
             self.graph[edge[0]][edge[1]]['pher'] *= (1 - self.rho)
@@ -140,7 +163,7 @@ class AntColony:
         if self.algo == 'elitist':
             if not self.init_pher:
                 raise ValueError('must provide initial pheromone value')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
@@ -153,7 +176,7 @@ class AntColony:
                 raise ValueError('must provide initial pheromone value')
             if not self.min_pher or not self.max_pher:
                 raise ValueError('must provide min and max values for pheromone')
-            self.init_pheromon()
+            self.init_pheromone()
             delta = self.best_ant.return_new_pher_trace()
             pheromones = []
             for edge in delta.edges():
