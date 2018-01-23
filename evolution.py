@@ -4,6 +4,7 @@ from antcolony import AntColony
 from run_aco import simple_cube, read_graph_from_file
 from heapq import *
 import evaluation
+import os
 
 class Evolution():
     ''' class to let several ant colonies compete agains each other to determine good parameters for the evaluated
@@ -100,22 +101,27 @@ class Evolution():
 
         solutions = []
         for i in range(self.tries):
-            _, dist, _, _ = colony.find
+            _, dist, _ = colony.find
             solutions.append(dist)
 
         return np.mean(np.array(solutions))
 
-    def begin(self):
+    def begin(self, path=None):
         '''function to run the evolutionary process.
 
         Returns:
-            alpha_colony (AntColony instance): colony that perfomed best overall
+            alpha_colony (AntColony instance): colony that performed best overall
             alpha_genes (dict): parameters of this colony
-            shortest_distances (list): shortest distance found in each iteration
-            mean_distances (list): mean shortest distance found by all colonies in each iteration'''
+            memory (ndarray): of shape (epochs, [average best distance, its std, epochs best distance, best colony's genes (dict)])
+        '''
 
         mean_distances = []
         shortest_distances = []
+
+        if path and os.path.exists(path):
+            raise IOError('path already exists. choses another to save history.')
+
+        memory = np.full((self.epochs, 4), None)
 
         for i in range(self.epochs):
 
@@ -161,10 +167,18 @@ class Evolution():
 
             print([(self.population[i][0], self.population[i][1]) for i in range(len(self.population))])
 
+            #saving history
+            memory[i, 0] = mean
+            memory[i, 1] = std
+            memory[i, 2] = epoch_winner[0]
+            memory[i, 3] = epoch_winner[3]
+            if path:
+                np.save(path, memory)
+
         #leaves the heap invariant
         alpha_distance, alpha_id, alpha_colony, alpha_genes = heappop(self.population)
 
-        return alpha_colony, alpha_genes, shortest_distances, mean_distances
+        return alpha_colony, alpha_genes, memory
 
 
 if __name__ == '__main__':
@@ -174,11 +188,11 @@ if __name__ == '__main__':
     #G = simple_cube()
     G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
 
-    evolution = Evolution(colonies=5, ants=5, algo='ant_system', iter=8, init_params=gene_root, graph=G, unique_visit=True, \
-                    goal='TSP', start_node=None, end_node=None, tries=1, epochs=3, variation=0.5, drop_out=0.5)
+    evolution = Evolution(colonies=2, ants=10, algo='ant_system', iter=10, init_params=gene_root, graph=G, unique_visit=True, \
+                    goal='TSP', start_node=None, end_node=None, tries=1, epochs=10, variation=0.5, drop_out=0.5)
 
-    alpha_colony, alpha_genes, shortest_distances, mean_distances = evolution.begin()
-    evaluation.plot_evolution_hist(shortest_distances, mean_distances, path='plots/evo_test.pdf', title='Evo Test')
+    alpha_colony, alpha_genes, memory = evolution.begin(path='data/evo_hist.npy')
+    #evaluation.plot_evolution_hist(shortest_distances, mean_distances, path='plots/evo_test.pdf', title='Evo Test')
 
     #print('\nwinner:')
     #print(alpha_colony.shortest_dist)

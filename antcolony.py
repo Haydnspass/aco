@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import threading
+import os
 
 from ant import Ant
 
@@ -76,14 +77,16 @@ class AntColony:
         for edge in self.graph.edges():
             self.graph[edge[0]][edge[1]]['pher'] = self.init_pher
 
-    @property
-    def find(self):
+    def find(self, path=None):
         """Start the thread’s activity. 
         The method run() in <ants> representing the thread’s activity will be called. 
         Multiple threads are runing at the same time.
         """
-        paths = []
-        distances = []
+
+        if path and os.path.exists(path):
+            raise IOError('path already exists. please choose another to save history.')
+
+        memory = np.full((self.iter, 2), None)
 
         for i in range(self.iter):
             self.ants = self.init_ants()
@@ -108,15 +111,17 @@ class AntColony:
                 self.shortest_dist = ant.distance_traveled
                 self.best_ant = ant
 
-            paths.append(self.shortest_path)
-            distances.append(self.shortest_dist)
-
+            #saving history
+            memory[i, 0] = self.shortest_dist
+            memory[i, 1] = self.shortest_path
+            if path:
+                np.save(path, memory)
 
             #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromon()
         
-        return self.shortest_path, self.shortest_dist, paths, distances
+        return self.shortest_path, self.shortest_dist, memory
 
     def update_pheromon(self):
         """Updates the pheromon graph, based on the ants movements.

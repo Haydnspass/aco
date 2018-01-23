@@ -2,11 +2,11 @@ import numpy as np
 import pylab as plt
 import os
 
-def plot_distances(distances, show=True, path=None, title=None):
+def plot_distances(memory, show=True, path=None, title=None):
     '''plots the shortest distances of each iteration for all iterations
 
     Args:
-        distances (list): list of shortest distance in each iteration, starting from index zero
+        memory (ndarray): as returned by colony.find
         show (bool): whether to show the plot
         path (string): path to save the figure to
         title (string): title for the plot
@@ -14,10 +14,10 @@ def plot_distances(distances, show=True, path=None, title=None):
         nothing
     '''
 
-    x = np.linspace(0, len(distances), len(distances))
-    y = np.array(distances)
+    distances = memory[:, 0][np.where(memory[:, 0] != None)]
+    x = np.linspace(0, len(distances) - 1, len(distances))
 
-    plt.plot(x, y)
+    plt.plot(x, distances)
     plt.xlabel('Iteration')
     plt.ylabel('Shortest Distance')
 
@@ -35,21 +35,21 @@ def plot_distances(distances, show=True, path=None, title=None):
 
     return
 
-def plot_evolution_hist(shortest_distances, mean_distances, show=True, path=None, title=None):
+def plot_evolution_hist(memory, show=True, path=None, title=None):
     '''function to plot the history of an evolutionary process
 
      Args:
-        shortest_distances (list): shortest distance (average over number of tries) found in each epoch
-        mean_distance (2d list): mean distance and standard deviation of each epoch
+        memory (ndarray): as returned by evolution.begin()
         show (bool): whether to show the plot
         path (string): path to save the figure to
         title (string): plot title
     '''
 
-    x = np.linspace(0, len(shortest_distances)-1, len(shortest_distances))
-    y1 = np.array(shortest_distances)
-    y2 = np.array(mean_distances)[:, 0]
-    err2 = np.array(mean_distances)[:, 1]
+    n_epochs = len(memory[:, 0][np.where(memory[:, 0] != None)])
+    x = np.linspace(0, n_epochs - 1, n_epochs)
+    y1 = memory[0: n_epochs, 2]
+    y2 = memory[0: n_epochs, 0]
+    err2 = memory[0: n_epochs, 1]
 
     plt.plot(x, y1, '--o', label='shortest distance')
     plt.errorbar(x, y2, yerr=err2, fmt='--x', label='mean distance')
@@ -68,3 +68,8 @@ def plot_evolution_hist(shortest_distances, mean_distances, show=True, path=None
         plt.show()
 
     return
+
+if __name__ == '__main__':
+
+    m = np.load('data/find_test.npy')
+    plot_distances(m)
