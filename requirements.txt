@@ -2,6 +2,7 @@
 numpy
 networkx
 sklearn
+scipy
 
 # plotting
 matplotlib

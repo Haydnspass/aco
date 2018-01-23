@@ -34,22 +34,23 @@ def romanian_graph(): # this graph is not possible with unique visitable nodes
 if __name__ == "__main__":
 
     # G = romanian_graph()
-    G = read_graph_from_file('data/oliver30.txt', ' ')
+    G = read_graph_from_file('data/us48.txt', ' ', file_xy_mat='data/coordinates/us48_xy.txt')
     #G = simple_cube()
 
     colony = AntColony(graph=G, 
-        ants_total=30, 
-        iter=20, 
+        ants_total=48, 
+        iter=100, 
         alpha=1, 
         beta=5, 
         rho=0.4,
         unique_visit=True, 
         goal='TSP', 
-        algo='ACS')
+        algo='ant_system')
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
-    shortest_path, shortest_dist, memory = colony.find(path='data/find_test.npy')
-    evaluation.plot_distances(memory, title='Test', path='plots/test.pdf')
+    memory_filename = 'data/mem_' + 'algo-' + colony.algo + '_iter-' + str(colony.iter) + '_ants-' + str(colony.ants_total) + '.npy'
+    shortest_path, shortest_dist, memory = colony.find(path=memory_filename)
+    evaluation.plot_distances(memory, title='Test', path='plots/test.pdf', show=False)
     # print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
 
     # draw_graph(G, shortest_path, file_name='plots/graph.pdf')
