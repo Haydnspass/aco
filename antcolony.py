@@ -129,13 +129,13 @@ class AntColony:
 
             print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
-            self.update_pheromon()
+            self.update_pheromone()
         
         return self.shortest_path, self.shortest_dist 
         
-    def update_pheromon(self):
+    def update_pheromone(self):
         """
-            Updates the pheromon graph, based on the ants movements.
+            Updates the pheromone graph, based on the ants movements.
             Several algorithms, such as ant system, elitist ant etc. are possible.
             The all comprise two steps: 1) Evaporation, 2) New pheromone based on the paths.
         """
