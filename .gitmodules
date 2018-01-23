@@ -1,0 +1,3 @@
+[submodule "nxpd"]
+	path = nxpd
+	url = https://github.com/chebee7i/nxpd
