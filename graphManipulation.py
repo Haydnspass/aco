@@ -32,7 +32,7 @@ def read_graph_from_file(file_dist_mat, delimiter, file_xy_mat=None):
     return G
 
 
-def draw_graph(G, path, file_name='graph.pdf'):
+def draw_graph(G, path, file_name='plots/graph.pdf'):
     """Simple representation of the graph featuring labels of a given attribute."""
     # position is stored as node attribute data for random_geometric_graph
     pos = nx.get_node_attributes(G,'pos')

@@ -29,7 +29,7 @@ def all_test_tsp():
     cases = glob.glob('data/*.txt')
     G = [None] * cases.__len__()
     for i, case_path in enumerate(cases):
-        G[i] = read_graph_from_file(path=case_path, delimiter=' ')
+        G[i] = read_graph_from_file(case_path, delimiter=' ')
     
     return G
     
@@ -43,11 +43,29 @@ def all_test_tsp_run():
     for graph in G:
         for alg in list_of_alg():
             if alg == 'min_max':
-                colony = AntColony(graph, 50, 1, 1, 0.5, 0.2, True, 'TSP', min_pher=0.0001, max_pher=10, algo=alg)
+                colony = AntColony(graph=graph,
+                                   ants_total=50,
+                                   iter=1,
+                                   alpha=1,
+                                   beta=5,
+                                   rho=0.4,
+                                   unique_visit=True,
+                                   goal='TSP',
+                                   min_pher=0.0001,
+                                   max_pher=10,
+                                   algo=alg)
             else:
-                colony = AntColony(graph, 50, 1, 1, 0.5, 0.2, True, 'TSP', algo=alg)
+                colony = AntColony(graph=graph,
+                                   ants_total=50,
+                                   iter=1,
+                                   alpha=1,
+                                   beta=5,
+                                   rho=0.4,
+                                   unique_visit=True,
+                                   goal='TSP',
+                                   algo=alg)
                 
-            paths[i], dists[i] = colony.find
+            paths[i], dists[i], _ = colony.find()
             i += 1
         
     return paths, dists
@@ -65,8 +83,19 @@ def uniqueness_of_path(path):
 '''Actual run of tests.'''
 def test_total_run_basic(simple_cube):
     """Start at 1 to make life easier"""
-    colony = AntColony(simple_cube, 4, 5, 1, 1, 1, True, 'TSP', start_node=1, algo='ant_system')
-    path_best, dist = colony.find
+    colony = AntColony(graph=simple_cube,
+        ants_total=4,
+        iter=5,
+        alpha=1,
+        beta=5,
+        rho=0.4,
+        start_node=1,
+        unique_visit=True,
+        goal='TSP',
+        algo='ant_system')
+
+        #AntColony(simple_cube, 4, 5, 1, 1, 1, True, 'TSP', start_node=1, algo='ant_system')
+    path_best, dist, _ = colony.find()
 
     path_best = np.array(path_best)
     assert ((path_best == [1,2,3,4,1]).all() or (path_best == [1,4,3,2,1]).all()) and dist == 4,\
