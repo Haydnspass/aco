@@ -12,7 +12,7 @@ class Ant(threading.Thread):
         A class representing an ant as part of the ant colony.
     """
     
-    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None):
+    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None, rho_local=None):
         """
             Initializes an ant.
 
@@ -24,6 +24,7 @@ class Ant(threading.Thread):
             @param unique_visit: Determines whether a node can only be visited once.
             @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
             @param end_node: specifies the end_node for path minimisation
+            @param rho_local: Determines the local evaporation factor for acs.
         """
         self.graph = graph
         self.init_loc = init_loc
@@ -32,6 +33,7 @@ class Ant(threading.Thread):
         self.unique_visit = unique_visit
         self.goal = goal
         self.end_node = end_node
+        self.rho_local = rho_local
         self.colony = colony
 
         self.loc = None
@@ -171,8 +173,8 @@ class Ant(threading.Thread):
             self.distance_traveled += self.graph[self.loc][next]['weight']
             # local updates after every step
             if self.colony.algo == 'ACS' or self.colony.algo == 'biological':
-                self.graph[self.loc][next]['pher'] *= (1 - self.colony.rho)
-                self.graph[self.loc][next]['pher'] += self.colony.rho * self.colony.tau
+                self.graph[self.loc][next]['pher'] *= (1 - self.rho_local)
+                self.graph[self.loc][next]['pher'] += self.rho_local * self.colony.tau
 
         self.loc = next
 

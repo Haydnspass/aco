@@ -16,7 +16,7 @@ class AntColony:
     """
 
     def __init__(self, graph, ants_total, iter, alpha, beta, rho, unique_visit, goal, start_node=None, end_node=None, \
-                 init_pher=0.1, min_pher=None, max_pher=None, q0=0.3, tau=0.00001, algo='ant_system'):
+                 init_pher=0.1, min_pher=None, max_pher=None, q0=0.3, tau=0.00001, rho_local=None, algo='ant_system'):
 
         """
             Initialize an ant colony.
@@ -27,6 +27,7 @@ class AntColony:
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
             @param rho: Determines the evaporation factor.
+            @param rho_local: Determines the local evaporation factor for acs.
             @param unique_visit: Determines whether a node can only be visited once.
             @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
             @param start_node: Specifies the initial node.
@@ -45,6 +46,7 @@ class AntColony:
         self.alpha = alpha
         self.beta = beta
         self.rho = rho
+        self.rho_local = rho_local
         self.q0 = q0
         self.tau = tau
         self.init_pher = init_pher
@@ -59,6 +61,11 @@ class AntColony:
         self.best_ant = None
         self.shortest_dist = None
         self.shortest_path = None
+        
+        # use same values for rho_local and rho (ACS)
+        if self.rho_local is None:
+            self.rho_local = self.rho
+            
         nx.set_edge_attributes(self.graph, 0, 'pher')  # initialize pheromone values
 
         self.ants = self.init_ants()
@@ -83,7 +90,7 @@ class AntColony:
                 self.start_node = np.random.choice(self.graph.nodes())
                 
             ants[i] = Ant(colony=self, graph=self.graph, init_loc=self.start_node, alpha=self.alpha, beta=self.beta, \
-                          unique_visit=self.unique_visit, goal=self.goal, end_node=self.end_node)
+                          unique_visit=self.unique_visit, goal=self.goal, end_node=self.end_node, rho_local=self.rho_local)
             
         return ants
 
@@ -139,9 +146,9 @@ class AntColony:
             if path:
                 np.save(path, memory)
 
-            if i % 100 == 0:
+            if i % 10 == 0:
                 print('This is: Algorithm: ', self.algo, ' --- #Ants: ', self.ants_total, ' --- #Iterations: ', self.iter)
-                print('alpha: ', self.alpha, 'beta: ', self.beta, 'rho: ', self.rho, 'q0: ', self.q0, 'init: ', self.init_pher)
+                print('alpha: ', self.alpha, 'beta: ', self.beta, 'rho: ', self.rho, 'q0: ', self.q0, 'init: ', self.init_pher, 'rho_local', self.rho_local)
                 print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromone()

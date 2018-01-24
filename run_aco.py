@@ -47,7 +47,8 @@ if __name__ == "__main__":
         q0=0.9,
         unique_visit=True, 
         goal='TSP', 
-        algo='ACS')
+        algo='ACS',
+        rho_local=0.1)
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     add_info = 'paper_params'
