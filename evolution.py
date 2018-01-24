@@ -101,7 +101,7 @@ class Evolution():
 
         solutions = []
         for i in range(self.tries):
-            _, dist, _ = colony.find
+            _, dist, _ = colony.find()
             solutions.append(dist)
 
         return np.mean(np.array(solutions))
@@ -183,15 +183,23 @@ class Evolution():
 
 if __name__ == '__main__':
 
-    gene_root = {'alpha': 1, 'beta': 1, 'rho': 0.1, 'init_pher': None, 'min_pher': None, 'max_pher': None, 'q0': None, 'tau': None}
+    gene_root = {'alpha': 1, 'beta': 5, 'rho': 0.1, 'init_pher': None, 'min_pher': None, 'max_pher': None, 'q0': 0.3, 'tau':0.0001}
 
     #G = simple_cube()
     G = read_graph_from_file(path='data/oliver30.txt', delimiter=' ')
 
-    evolution = Evolution(colonies=2, ants=10, algo='ant_system', iter=10, init_params=gene_root, graph=G, unique_visit=True, \
-                    goal='TSP', start_node=None, end_node=None, tries=1, epochs=10, variation=0.5, drop_out=0.5)
+    evolution = Evolution(colonies=10, ants=20, algo='ACS', iter=50, init_params=gene_root, graph=G, unique_visit=True, \
+                    goal='TSP', start_node=None, end_node=None, tries=3, epochs=50, variation=0.5, drop_out=0.5)
 
-    alpha_colony, alpha_genes, memory = evolution.begin(path='data/evo_hist.npy')
+    alpha_colony, alpha_genes, memory = evolution.begin(path='data/evo_ACS_hist.npy')
+
+    gene_root_2 = {'alpha': 1, 'beta': 5, 'rho': 0.1, 'init_pher': 0.1, 'min_pher': None, 'max_pher': None, 'q0': None,
+                 'tau': None}
+
+    evolution_2 = Evolution(colonies=10, ants=20, algo='Elitist', iter=50, init_params=gene_root_2, graph=G, unique_visit=True, \
+                          goal='TSP', start_node=None, end_node=None, tries=3, epochs=50, variation=0.5, drop_out=0.5)
+
+    alpha_colony2, alpha_genes, memory = evolution_2.begin(path='data/evo_Elitist_hist.npy')
     #evaluation.plot_evolution_hist(shortest_distances, mean_distances, path='plots/evo_test.pdf', title='Evo Test')
 
     #print('\nwinner:')

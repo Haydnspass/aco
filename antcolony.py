@@ -26,7 +26,7 @@ class AntColony:
             @param iter: Number of iterations.
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
-            @param rho: Determines the evaporation factor.
+            @param rho: Determines the evaporation factor in both local and global updates
             @param unique_visit: Determines whether a node can only be visited once.
             @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
             @param start_node: Specifies the initial node.
@@ -139,7 +139,7 @@ class AntColony:
             if path:
                 np.save(path, memory)
 
-            #print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
+            print('iteration', i, ':', 'shortest distance =', self.shortest_dist)
 
             self.update_pheromone()
         
