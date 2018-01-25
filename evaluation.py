@@ -94,10 +94,12 @@ if __name__ == '__main__':
     #m = np.load('data/evo_Elitist_hist.npy')
     #plot_evolution_hist(m, path='plots/elitist_evo.pdf', title='evolutionary development of Elitist')
 
-    m1 = np.load('data/us_ACS{a=1,b=5,r=0.05,t=1e-4,q0=0.1}.npy')
-    m2 = np.load('data/us_elitist{a=1,b=5,r=0.3,t0=0.1.npy')
-    m3 = np.load('data/us_AS{a=1,b=5,r=0.05.npy')
+    m1 = np.load('data/ACS_std_param.npy')
+    m2 = np.load('data/ACS_evo_param.npy')
+    m3 = np.load('data/AS4{a=1,b=5,r=0.01}.npy')
+    m4 = np.load('data/Elitist{a=1,b=5,r=0.4,t0=0.01}.npy')
 
-    plot_distances([m1, m2, m3], labels=['ACS', 'Elitist', 'AS'], best_d=36000, n_iter=10)
+    plot_distances([m1, m2, m3, m4], labels=['ACS standard', 'ACS evolutionary', 'AS', 'Elitist'], best_d=425, n_iter=15,
+                   path='oliver30_no_title.pdf')
 
     #path='plots/US48_comparison_no_title.pdf'
