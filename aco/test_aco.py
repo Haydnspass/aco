@@ -9,6 +9,7 @@ from graphManipulation import read_graph_from_file
 
 '''Fixtures providing various tests sets.'''
 
+
 @pytest.fixture
 def list_of_alg():
     return ['ant_system', 'elitist', 'min_max', 'ACS']

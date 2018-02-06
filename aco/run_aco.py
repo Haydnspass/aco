@@ -5,7 +5,7 @@ import sys
 
 import evaluation
 from antcolony import AntColony
-from data.networkxgraphs import simple_cube, romanian_graph
+from networkxgraphs import simple_cube, romanian_graph
 from graphManipulation import read_graph_from_file, draw_graph
 
 '''
@@ -33,9 +33,9 @@ if __name__ == "__main__":
         11: rho_local
         12: unique_visit
         '''
-        
-        G = read_graph_from_file('data/' + sys.argv[1], ' ')
-        memory_filename = 'data/history/' + sys.argv[2] + '.npy'
+
+        G = read_graph_from_file('../data/' + sys.argv[1], ' ')
+        memory_filename = '../data/history/' + sys.argv[2] + '.npy'
 
         colony = AntColony(graph=G,
                            ants_total=int(sys.argv[5]),
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     else:
         '''If not enough arguments were passed, run this predefined example.
         '''
-        G = read_graph_from_file('data/us48.txt', ' ', file_xy_mat='data/coordinates/us48_xy.txt')
+        G = read_graph_from_file('../data/us48.txt', ' ', file_xy_mat='../data/coordinates/us48_xy.txt')
 
         colony = AntColony(graph=G,
                            ants_total=10,
@@ -71,6 +71,6 @@ if __name__ == "__main__":
                            rho_local=0.1)
 
         add_info = 'paper_params'
-        memory_filename = 'data/mem_' + add_info + '_algo-' + colony.algo + '_iter-' \
+        memory_filename = '../data/mem_' + add_info + '_algo-' + colony.algo + '_iter-' \
                           + str(colony.iter) + '_ants-' + str(colony.ants_total) + '.npy'
         shortest_path, shortest_dist, memory = colony.find(path=memory_filename)
