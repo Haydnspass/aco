@@ -3,17 +3,19 @@ import numpy as np
 import threading
 
 
-""" 
-    Jacqueline Wagner, Lucas Möller, Lucas-Raphael Müller 
-"""
+'''
+    Jacqueline Wagner, Lucas Möller, Lucas-Raphael Müller
+'''
+
 
 class Ant(threading.Thread):
-    """
+    '''
         A class representing an ant as part of the ant colony.
-    """
-    
-    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP', end_node=None, rho_local=None):
-        """
+    '''
+
+    def __init__(self, colony, graph, init_loc, alpha=1, beta=1, unique_visit=False, goal='TSP',
+                 end_node=None, rho_local=None):
+        '''
             Initializes an ant.
 
             @param colony: Instance of ant colony class.
@@ -22,10 +24,11 @@ class Ant(threading.Thread):
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
             @param unique_visit: Determines whether a node can only be visited once.
-            @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all cities at least once.
+            @param goal: Determines the goal of the optimisation. Could be TSP, i.e. must visit all
+             cities at least once.
             @param end_node: specifies the end_node for path minimisation
             @param rho_local: Determines the local evaporation factor for acs.
-        """
+        '''
         self.graph = graph
         self.init_loc = init_loc
         self.alpha = alpha
@@ -50,9 +53,9 @@ class Ant(threading.Thread):
         self.travel(self.init_loc, init=True)  # recognise initial location as part of the path
 
     def run(self):
-        """
+        '''
             Actual run of the ants. This method overloads threading.Thread.run
-        """
+        '''
         while not self.is_goal_achieved(self.goal):
             possible_nodes = self.get_possible_nodes()
             if possible_nodes.__len__() < 1:
@@ -64,30 +67,32 @@ class Ant(threading.Thread):
         self.complete = True
 
     def get_possible_nodes(self):
-        """
+        '''
             Prevent to get another node after path is closed.
-            
+
             @called in: run
-            
-            @return nodes_not_self: The nodes which are accessible, possible and don't result in a loop.
-        """
+
+            @return nodes_not_self: The nodes which are accessible, possible and don't result in a
+             loop.
+        '''
         if self.path.__len__() > 1 and self.path[0] == self.path[-1]:
             raise ValueError('Path is already closed. This should not happen.')
 
-        """
-            Returns nodes which are accessible (i.e. neighbors), and possible (i.e. may not be visited already). 
-        """
+        '''
+            Returns nodes which are accessible (i.e. neighbors), and possible (i.e. may not be
+            visited already).
+        '''
         nodes_all = np.intersect1d(list(self.graph.neighbors(self.loc)), self.poss_loc)
 
-        """
+        '''
             Do not allow for self loops.
-        """
+        '''
         nodes_not_self = np.setdiff1d(nodes_all, self.loc)
 
-        """
-            Allow to move to initial node for TSP even though initial node was already visited, 
+        '''
+        Allow to move to initial node for TSP even though initial node was already visited,
         this must not occur more than once.
-        """
+        '''
         if self.path.__len__() == self.nodes.__len__() \
                 and self.init_loc in list(self.graph.neighbors(self.loc)) \
                 and self.unique_visit \
@@ -99,19 +104,20 @@ class Ant(threading.Thread):
         return nodes_not_self
 
     def return_best_node(self, current_node, possible_nodes, alpha, beta, heuristic=1):
-        """
-            Returns the best node out of the possible based on current pheromone level and distance to next node.
-            
+        '''
+            Returns the best node out of the possible based on current pheromone level and distance
+            to next node.
+
             @called in: run
-            
+
             @return np.random.choice(possible_nodes, p=p)
-            
+
             @param current_node: Node which the ant is currently located at.
             @param possible_nodes: All nodes which the ant can travel to.
             @param alpha: Power of the pheromone factor.
             @param beta: Power of the attractiveness factor.
             @param heuristic:
-        """
+        '''
         p = np.zeros(possible_nodes.__len__())
         p_sum = 0
         for i in range(p.__len__()):
@@ -134,15 +140,15 @@ class Ant(threading.Thread):
         return np.random.choice(possible_nodes, p=p)
 
     def is_goal_achieved(self, goal):
-        """
+        '''
             Tests whether goal is achieved.
-            
+
             @called in: run
-            
+
             @return True or False
-            
+
             @param goal: The goal which needs to be achieved.
-        """
+        '''
         if goal == 'TSP':
             if np.array_equal(np.unique(self.path), self.nodes) and self.loc == self.init_loc:
                 return True
@@ -157,16 +163,16 @@ class Ant(threading.Thread):
             raise ValueError('Only TSP possible so far.')
 
     def travel(self, next, init=False):
-        """
+        '''
             Updates path and distance.
-            
+
             @called in: run, __init__
-            
+
             @param next: Next node the ant will travel to.
-            @param init: 
-        """
+            @param init:
+        '''
         self.path.append(next)
-        if self.unique_visit and not self.last_move:  # last move to close the line; already removed.
+        if self.unique_visit and not self.last_move:  # last move to close the line
             self.poss_loc.remove(next)
 
         if init is False:
@@ -179,15 +185,16 @@ class Ant(threading.Thread):
         self.loc = next
 
     def return_new_pher_trace(self):
-        """ 
-            Returns a helper graph which feature the pheromone trace of a single ant denoted as 'delta'.       
-        """
+        '''
+            Returns a helper graph which feature the pheromone trace of a single ant denoted as
+            'delta'.
+        '''
         if self.complete:
             delta_graph = self.graph.copy()
             nx.set_edge_attributes(delta_graph, 0, 'delta')
             for i in range(self.path.__len__() - 1):
-                delta_graph[self.path[i]][self.path[i + 1]]['delta'] = 1 / delta_graph[self.path[i]][self.path[i + 1]][
-                    'weight']
+                delta_graph[self.path[i]][self.path[i + 1]]['delta'] = 1 \
+                    / delta_graph[self.path[i]][self.path[i + 1]]['weight']
 
             return delta_graph
         else:

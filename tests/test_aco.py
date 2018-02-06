@@ -12,17 +12,19 @@ from graphManipulation import read_graph_from_file
 @pytest.fixture
 def list_of_alg():
     return ['ant_system', 'elitist', 'min_max', 'ACS']
-    
+
+
 @pytest.fixture
 def simple_cube():
     G = nx.Graph()
-    
+
     edges = [(1, 2, {'weight': 1}), (2, 3, {'weight': 1}), (3, 4, {'weight': 1}), (4, 1, {'weight': 1}),
              (1, 3, {'weight': 1.41421}), (2, 4, {'weight': 1.41421})]
     G.add_edges_from(edges)
 
     return G
-    
+
+
 @pytest.fixture
 def all_test_tsp():
     # get all files in data
@@ -30,9 +32,10 @@ def all_test_tsp():
     G = [None] * cases.__len__()
     for i, case_path in enumerate(cases):
         G[i] = read_graph_from_file(case_path, delimiter=' ')
-    
+
     return G
-    
+
+
 @pytest.fixture
 def all_test_tsp_run():
     G = all_test_tsp()
@@ -64,41 +67,46 @@ def all_test_tsp_run():
                                    unique_visit=True,
                                    goal='TSP',
                                    algo=alg)
-                
+
             paths[i], dists[i], _ = colony.find()
             i += 1
-        
+
     return paths, dists
-    
+
+
 '''Test methods.'''
+
+
 def closeness_of_path(path):
     assert path[0] == path[-1], 'Path is not closed.'
-    
+
 
 def uniqueness_of_path(path):
-    if path.__len__() > len(set(path)) + 1: # first node appear twice
+    if path.__len__() > len(set(path)) + 1:  # first node appear twice
         assert False, 'Path visited nodes more than once.'
 
 
 '''Actual run of tests.'''
+
+
 def test_total_run_basic(simple_cube):
     """Start at 1 to make life easier"""
     colony = AntColony(graph=simple_cube,
-        ants_total=4,
-        iter=5,
-        alpha=1,
-        beta=5,
-        rho=0.4,
-        start_node=1,
-        unique_visit=True,
-        goal='TSP',
-        algo='ant_system')
+                       ants_total=4,
+                       iter=5,
+                       alpha=1,
+                       beta=5,
+                       rho=0.4,
+                       start_node=1,
+                       unique_visit=True,
+                       goal='TSP',
+                       algo='ant_system')
 
-        #AntColony(simple_cube, 4, 5, 1, 1, 1, True, 'TSP', start_node=1, algo='ant_system')
+    # colony =  AntColony(simple_cube, 4, 5, 1, 1, 1, True, 'TSP', start_node=1, algo='ant_system')
     path_best, dist, _ = colony.find()
 
     path_best = np.array(path_best)
-    assert ((path_best == [1,2,3,4,1]).all() or (path_best == [1,4,3,2,1]).all()) and dist == 4,\
+    assert ((path_best == [1, 2, 3, 4, 1]).all() or (path_best == [1, 4, 3, 2, 1]).all()) and dist == 4,\
         'Best path not found.'
 
 
