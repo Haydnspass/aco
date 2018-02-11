@@ -2,33 +2,38 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from scipy.spatial import distance
 from sklearn.manifold import MDS
 
 
-
-def read_graph_from_file(file_dist_mat, delimiter, file_xy_mat=None):
+def read_graph_from_file(file_dist_mat=None, delimiter=' ', file_xy_mat=None):
     """ Reads graph from file. Unrecognised lines should be commented by a #."""
     G = nx.Graph()
-    dist_matrix = np.loadtxt(file_dist_mat, dtype='f', delimiter=delimiter)
-
-    n = dist_matrix.shape[0]
-    for i in range(n):
-        for j in range(n)[i:]:
-            G.add_edge(i, j, weight=dist_matrix[i,j])
 
     if file_xy_mat is not None:
         xy_mat = np.loadtxt(file_xy_mat, dtype='f', delimiter=delimiter)
+
+        dist_matrix = distance.cdist(xy_mat, xy_mat)
+        n = dist_matrix.shape[0]
+        for i in range(n):
+            for j in range(n)[i:]:
+                G.add_edge(i, j, weight=dist_matrix[i, j])
         nx.set_node_attributes(G, (None, None), 'pos')
     else:
         """If xy matrix is not provided, calculate coordinates from principal component analysis"""
-        # xy_pca = PCA(n_components=2)
-        # xy_mat = xy_pca.fit_transform(dist_matrix)
+        dist_matrix = np.loadtxt(file_dist_mat, dtype='f', delimiter=delimiter)
+
+        n = dist_matrix.shape[0]
+        for i in range(n):
+            for j in range(n)[i:]:
+                G.add_edge(i, j, weight=dist_matrix[i, j])
         xy_mds = MDS(n_components=2)
         xy_mat = xy_mds.fit_transform(dist_matrix)
         nx.set_node_attributes(G, (None, None), 'pos')
+
     for i in range(n):
         G.node[i]['pos'] = (xy_mat[i,0], xy_mat[i,1])
-            
+
     return G
 
 
