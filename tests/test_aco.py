@@ -3,6 +3,8 @@ import numpy as np
 import networkx as nx
 import numpy as np
 import pytest
+import sys
+import os
 
 from antcolony import AntColony
 from graphManipulation import read_graph_from_file
