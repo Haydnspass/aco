@@ -18,7 +18,7 @@ from graphManipulation import read_graph_from_file, draw_graph
 def run_alg(args):
     (graph, ants_total, iter, alpha, beta, rho, q0, rho_local, del_min, del_max, tau0, algo, outFname) = args
     # G = romanian_graph()
-    G = read_graph_from_file(delimiter=' ', file_xy_mat='../data/coordinates/' + graph + '.txt')
+    G = read_graph_from_file(delimiter=' ', file_xy_mat='data/coordinates/' + graph + '.txt')
 
     colony = AntColony(graph=G,
                        ants_total=ants_total,
@@ -37,7 +37,7 @@ def run_alg(args):
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
     # add_info = 'multi' + '_graph-' + graph
-    # memory_filename = '../data/mem_' + add_info + '_algo-' + colony.algo + '_ants-' \
+    # memory_filename = 'data/mem_' + add_info + '_algo-' + colony.algo + '_ants-' \
     #     + str(colony.ants_total) + '_iter-' + str(colony.iter) \
     #     + '_alpha-' + str(colony.alpha) + '_beta-' + str(colony.beta) \
     #     + '_rho-' + str(colony.rho) + '_q0-' + str(colony.q0) + '_rho_loc-' \

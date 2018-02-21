@@ -1,3 +1,6 @@
 [submodule "nxpd"]
 	path = nxpd
 	url = https://github.com/chebee7i/nxpd
+[submodule "tsp-solver"]
+	path = tsp-solver
+	url = https://github.com/dmishin/tsp-solver.git
