@@ -199,7 +199,7 @@ class AntColony:
             # print('mean pheromone:', np.mean(np.array(pheromones)))
 
         if self.algo == 'ACS':
-            # no initial pheromone values needed here (?)
+            # no initial pheromone values needed here
             best_track = self.best_ant.return_new_pher_trace()
             for edge in best_track.edges():
                 self.graph[edge[0]][edge[1]]['pher'] += 1 / self.shortest_dist

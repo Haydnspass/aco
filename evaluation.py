@@ -3,15 +3,14 @@ import pylab as plt
 import os
 
 def plot_distances(memory, show=True, path=None, title=None):
-    '''plots the shortest distances of each iteration for all iterations
+    '''
+        plots the shortest distances of each iteration for all iterations
 
-    Args:
-        memory (ndarray): as returned by colony.find
-        show (bool): whether to show the plot
-        path (string): path to save the figure to
-        title (string): title for the plot
-    returns:
-        nothing
+        @param memory (ndarray): as returned by colony.find
+        @param show (bool): whether to show the plot
+        @param path (string): path to save the figure to
+        @param title (string): title for the plot
+
     '''
 
     distances = memory[:, 0][np.where(memory[:, 0] != None)]
@@ -36,13 +35,13 @@ def plot_distances(memory, show=True, path=None, title=None):
     return
 
 def plot_evolution_hist(memory, show=True, path=None, title=None):
-    '''function to plot the history of an evolutionary process
+    '''
+    function to plot the history of an evolutionary process
 
-     Args:
-        memory (ndarray): as returned by evolution.begin()
-        show (bool): whether to show the plot
-        path (string): path to save the figure to
-        title (string): plot title
+    @param memory (ndarray): as returned by evolution.begin()
+    @param show (bool): whether to show the plot
+    @param path (string): path to save the figure to
+    @param title (string): plot title
     '''
 
     n_epochs = len(memory[:, 0][np.where(memory[:, 0] != None)])

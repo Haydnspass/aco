@@ -8,29 +8,33 @@ import os
 
 
 class Evolution():
-    ''' class to let several ant colonies compete agains each other to determine good parameters for the evaluated
-    algorithm
-
-        Attributes:
-            num_colonies (int): number of ant colonies
-            num_ants (int): number of ants per colony
-            algo (str): algorithm all (!) colonies follow
-            iter (int): number of iterations each colony does to find a path
-            init_genes (dict): initial parameters for the algorithm. They need to match the algorithm!
-            graph (networkX graph): graph that all colonies explore
-            unique_visit (bool): whether an ant can visit a single node more than once
-            goal (str): problem to solve. {TSP, min_path}
-            start (int): starting node
-            end (int): destination node
-            tries (int): ties each colony gets to solve the goal problem
-            epochs (int): number of selection/variation iterations
-            variation (float): (0 < x <1) fraction in whose boundaries a parameter may mutate upon a single variation
-            drop_out (float): (0 < x < 1) fraction of all colonies that dies in each epoch
-            count (int): running count acting as a colony id
+    '''
+        class to let several ant colonies compete against each other to determine good parameters for the evaluated
+        algorithm
     '''
 
     def __init__(self, colonies, ants, algo, iter, init_params, graph, unique_visit, goal,
                  start_node, end_node, tries, epochs, variation, drop_out):
+
+        '''
+            initialize evolution.
+
+            @param num_colonies (int): number of ant colonies
+            @param num_ants (int): number of ants per colony
+            @param algo (str): algorithm all (!) colonies follow
+            @param iter (int): number of iterations each colony does to find a path
+            @param init_genes (dict): initial parameters for the algorithm. They need to match the algorithm!
+            @param graph (networkX graph): graph that all colonies explore
+            @param unique_visit (bool): whether an ant can visit a single node more than once
+            @param goal (str): problem to solve. {TSP, min_path}
+            @param start (int): starting node
+            @param end (int): destination node
+            @param tries (int): ties each colony gets to solve the goal problem
+            @param epochs (int): number of selection/variation iterations
+            @param variation (float): (0 < x <1) fraction in whose boundaries a parameter may mutate upon a single variation
+            @param drop_out (float): (0 < x < 1) fraction of all colonies that dies in each epoch
+            @param count (int): running count acting as a colony id
+        '''
 
         # ants
         self.num_colonies = colonies
@@ -62,15 +66,16 @@ class Evolution():
             heappush(self.population, (fitness, count, colony, genes))
 
     def make_colony(self, parent_genes):
-        '''function to initialize a colony from a set of parent genes.
-
-            Arguments:
-                parent_genes (dict): dictionary like init_params
-            Returns:
-                antcolony object
-                genes (dict)
-                id (current count)
         '''
+            function to initialize a colony from a set of parent genes.
+
+            @param parent_genes (dict): dictionary like init_params
+
+            @return antcolony object
+            @return genes (dict)
+            @return id (current count)
+        '''
+
         # variation
         genes = deepcopy(parent_genes)
         for key in parent_genes.keys():
@@ -92,12 +97,12 @@ class Evolution():
         return child, genes, count
 
     def eval_fitness(self, colony):
-        '''function to evaluate a colony's fitness
+        '''
+            function to evaluate a colony's fitness
 
-        Arguments:
-            colony (AntColony instance)
-        Returns:
-            average performance of all tries
+            @param colony (AntColony instance)
+
+            @return average performance of all tries
         '''
 
         solutions = []
@@ -108,12 +113,14 @@ class Evolution():
         return np.mean(np.array(solutions))
 
     def begin(self, path=None):
-        '''function to run the evolutionary process.
+        '''
+            function to run the evolutionary process.
 
-        Returns:
-            alpha_colony (AntColony instance): colony that performed best overall
-            alpha_genes (dict): parameters of this colony
-            memory (ndarray): of shape (epochs, [average best distance, its std, epochs best distance, best colony's genes (dict)])
+            @param path: path to safe memory
+
+            @return alpha_colony (AntColony instance): colony that performed best overall
+            @return alpha_genes (dict): parameters of this colony
+            @return memory (ndarray): of shape (epochs, [average best distance, its std, epochs best distance, best colony's genes (dict)])
         '''
 
         mean_distances = []
