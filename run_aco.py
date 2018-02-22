@@ -37,13 +37,13 @@ if __name__ == "__main__":
     G = read_graph_from_file(path='data/us48.txt', delimiter=' ')
     #G = simple_cube()
 
-    colony = AntColony(graph=G, ants_total=30, iter=20, alpha=1, beta=5, rho=0.05, tau=0.0001, q0=0.1,
+    colony = AntColony(graph=G, ants_total=20, iter=20, alpha=0.54, beta=13.49, rho=0.035, tau=0.000095, q0=0.085,
                        unique_visit=True, goal='TSP', algo='ACS')
 
     # colony = AntColony(G, 30, 2, 5, 1, 0.2, True, 'TSP', min_pher=0.001, max_pher=10, algo='min_max')
     # colony = AntColony(G, 20, 1000, 3, 1, 0.4, True, 'PathMin', 4, 10)
-    shortest_path, shortest_dist, memory = colony.find(path='data/us_ACS{a=1,b=5,r=0.05,t=1e-4,q0=0.1}.npy')
-    evaluation.plot_distances([memory], labels=['elitist'])
+    shortest_path, shortest_dist, memory = colony.find(path='data/us_ACS_evo.npy')
+    #evaluation.plot_distances([memory], labels=['elitist'])
     # print('Shortest path: ', shortest_path, ' dist: ', shortest_dist)
     # DrawGraph(G, 'r', 'pher')
     # plt.show()
