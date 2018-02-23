@@ -34,7 +34,7 @@ if __name__ == "__main__":
         12: unique_visit
         '''
 
-        G = read_graph_from_file('data/' + sys.argv[1], ' ')
+        G = read_graph_from_file(file_xy_mat='data/' + sys.argv[1], delimiter=' ')
         memory_filename = 'data/history/' + sys.argv[2] + '.npy'
 
         colony = AntColony(graph=G,
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     else:
         '''If not enough arguments were passed, run this predefined example.
         '''
-        G = read_graph_from_file('data/us48.txt', ' ', file_xy_mat='data/coordinates/us48_xy.txt')
+        G = read_graph_from_file(file_xy_mat='data/coordinates/us48_xy.txt')
 
         colony = AntColony(graph=G,
                            ants_total=10,
